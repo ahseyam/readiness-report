@@ -52,6 +52,10 @@ h3{font-size:1.22rem}
 .lh-logo-maarif{height:30px}
 .letterhead-mid{flex:1;min-width:180px;text-align:center;font-size:.8rem;font-weight:700;color:var(--fg-muted);letter-spacing:.01em}
 .intro-note{background:color-mix(in srgb, var(--accent) 7%, var(--surface));border-inline-start:3px solid var(--accent);border-radius:10px;padding:13px 16px;margin-bottom:18px;font-size:.86rem;font-weight:400;line-height:1.75;color:var(--fg)}
+.approval-row{display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.approval-row input[type=text]{flex:2;min-width:160px}
+.approval-row select{flex:2;min-width:180px}
+.approval-row .rm{flex-shrink:0;appearance:none;border:1px solid var(--border);background:transparent;color:var(--bad);width:34px;height:34px;border-radius:8px;font-size:1rem;cursor:pointer;line-height:1}
 header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;margin-bottom:18px;padding-bottom:16px;border-bottom:2px solid var(--accent)}
 .tabs{display:flex;gap:8px;background:var(--surface-2);padding:5px;border-radius:12px;border:1px solid var(--border)}
 .tab-btn{appearance:none;border:0;background:transparent;color:var(--fg-muted);font:inherit;font-weight:700;font-size:.82rem;padding:7px 14px;border-radius:8px;cursor:pointer}
@@ -259,6 +263,16 @@ tr.school-row:hover{background:var(--surface-2)}
         <label for="f_by">اسم المسؤول عن التعبئة</label>
         <input type="text" id="f_by" placeholder="مدير المدرسة / منسّق الجودة" required>
       </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:4px">اعتماد التقرير</h3>
+      <div class="hint" style="margin-bottom:12px">يُضاف اسم مدير المدرسة ووكلائه، وتُحدَّد وظيفة كل واحد منهم</div>
+      <div id="approvalsList"></div>
+      <button type="button" class="ghost" onclick="addApprovalRow()">+ إضافة اسم</button>
+    </div>
+
+    <div class="card">
       <button class="primary" onclick="saveSchool()">حفظ بيانات المدرسة</button>
       <div class="status-msg" id="saveStatus"></div>
     </div>
@@ -802,7 +816,7 @@ function emptyDoc(sc){
   const statuses={}; ALL_REQS.forEach(it=>statuses[it.key]="PENDING");
   const docStatuses={}; ALL_DOCS.forEach(it=>docStatuses[it.key]="IN_PROGRESS");
   return {schoolCode:sc.code, schoolName:sc.name, statuses, docStatuses, accomplish:"", remaining:"",
-    challenges:"", actions:"", expectedDate:"", comment:"", updatedBy:"", updatedAt:""};
+    challenges:"", actions:"", expectedDate:"", comment:"", updatedBy:"", updatedAt:"", approvals:[]};
 }
 
 const docStatusState={};
@@ -896,6 +910,7 @@ async function loadSchoolIntoForm(code){
   document.getElementById('f_challenges').value=data.challenges||"";
   document.getElementById('f_date').value=data.expectedDate||"";
   document.getElementById('f_by').value=data.updatedBy||"";
+  renderApprovals(data.approvals);
   document.getElementById('lastUpdateHint').textContent=data.updatedAt
     ? `آخر تحديث: ${new Date(data.updatedAt).toLocaleString('ar-SA')}` : 'لم تُعبَّأ بعد (الحالات الظاهرة أدناه مقترحة، عدّلها بما يطابق واقع مدرستك)';
   updateAverages();
@@ -917,6 +932,35 @@ function suggestText(which){
   });
   const el=document.getElementById(which==='accomplish'?'f_accomplish':'f_remaining');
   el.value = lines.length ? lines.join('\n') : 'لا بنود في هذه الحالة حالياً';
+}
+
+const APPROVAL_ROLES=["مدير المدرسة","وكيل الشؤون التعليمية","وكيل الشؤون الطلابية (إن وجد)","وكيل الشؤون المدرسية (إن وجد)"];
+let approvalRowSeq=0;
+
+function addApprovalRow(name,role){
+  const id='appr_'+(++approvalRowSeq);
+  const row=document.createElement('div');
+  row.className='approval-row';
+  row.id=id;
+  const roleOptions=APPROVAL_ROLES.map(r=>`<option value="${r}"${r===role?' selected':''}>${r}</option>`).join('');
+  row.innerHTML=`
+    <input type="text" class="appr-name" placeholder="الاسم" value="${name?name.replace(/"/g,'&quot;'):''}">
+    <select class="appr-role">${roleOptions}</select>
+    <button type="button" class="rm" onclick="document.getElementById('${id}').remove()" aria-label="حذف">×</button>`;
+  document.getElementById('approvalsList').appendChild(row);
+}
+
+function renderApprovals(list){
+  document.getElementById('approvalsList').innerHTML='';
+  approvalRowSeq=0;
+  (list&&list.length?list:[{name:'',role:APPROVAL_ROLES[0]}]).forEach(a=>addApprovalRow(a.name,a.role));
+}
+
+function collectApprovals(){
+  return [...document.querySelectorAll('#approvalsList .approval-row')].map(row=>({
+    name:row.querySelector('.appr-name').value.trim(),
+    role:row.querySelector('.appr-role').value,
+  })).filter(a=>a.name);
 }
 
 async function saveSchool(){
@@ -946,6 +990,7 @@ async function saveSchool(){
     challenges:document.getElementById('f_challenges').value,
     expectedDate:document.getElementById('f_date').value,
     updatedBy:document.getElementById('f_by').value,
+    approvals:collectApprovals(),
     updatedAt:new Date().toISOString(),
   };
   statusEl.textContent='جارٍ الحفظ...'; statusEl.className='status-msg';
@@ -1040,10 +1085,15 @@ function renderReport(){
     dtr.hidden=true;
     const d=data||{};
     const missingDocs=ALL_DOCS.filter(it=>!d.docStatuses || d.docStatuses[it.key]!=='READY');
-    const missingByCat=DOC_GROUPS.map(g=>{
-      const names=missingDocs.filter(it=>it.cat===g.id).map(it=>it.q);
-      return names.length ? `<p><strong>${g.name}:</strong> ${names.join('، ')}</p>` : '';
+    const missingKeys=new Set(missingDocs.map(it=>it.key));
+    const missingByCat=DOC_TREE.map(dom=>{
+      const names=[...new Set(dom.standards.flatMap(s=>s.indicators.flatMap(i=>i.records))
+        .filter(r=>missingKeys.has(r.key)).map(r=>r.q))];
+      return names.length ? `<p><strong>${dom.name}:</strong> ${names.join('، ')}</p>` : '';
     }).join('');
+    const approvalsHtml=(d.approvals&&d.approvals.length)
+      ? d.approvals.map(a=>`${a.name} — ${a.role}`).join('<br>')
+      : '—';
     dtr.innerHTML=`<td colspan="5"><div class="detail-grid">
       <div><h4>أبرز ما تم إنجازه</h4><p>${(d.accomplish||'—')}</p>
         <h4>المتطلبات غير المكتملة</h4><p>${(d.remaining||'—')}</p></div>
@@ -1053,6 +1103,7 @@ function renderReport(){
       <div><h4>الموعد المتوقع لاكتمال الجاهزية</h4><p>${(d.expectedDate||'—')}</p></div>
       <div><h4>تعليق على الموعد <span class="pill">تُعبّأ من المتابعة</span></h4>
         <textarea id="cmt_${sc.code}" onblur="saveAdminField('${sc.code}','comment',this.value)">${(d.comment||'')}</textarea></div>
+      <div><h4>اعتماد التقرير</h4><p>${approvalsHtml}</p></div>
       <div style="grid-column:1/-1"><h4>السجلات والوثائق غير المكتملة (${missingDocs.length} من ${ALL_DOCS.length})</h4>${missingByCat||'<p>لا شيء — كل السجلات جاهزة</p>'}</div>
     </div></td>`;
     body.appendChild(dtr);
@@ -1089,6 +1140,7 @@ function copyFullReport(){
     text+=`الإجراءات المتخذة: ${d.actions||'—'}\n`;
     text+=`الموعد المتوقع: ${d.expectedDate||'—'}\n`;
     text+=`تعليق: ${d.comment||'—'}\n`;
+    text+=`اعتماد: ${(d.approvals&&d.approvals.length)?d.approvals.map(a=>a.name+' — '+a.role).join('، '):'—'}\n`;
   });
   const statusEl=document.getElementById('copyStatus');
   navigator.clipboard.writeText(text).then(()=>{
