@@ -51,6 +51,7 @@ h3{font-size:1.22rem}
 .lh-logo{display:block;height:36px;width:auto;flex-shrink:0}
 .lh-logo-maarif{height:30px}
 .letterhead-mid{flex:1;min-width:180px;text-align:center;font-size:.8rem;font-weight:700;color:var(--fg-muted);letter-spacing:.01em}
+.intro-note{background:color-mix(in srgb, var(--accent) 7%, var(--surface));border-inline-start:3px solid var(--accent);border-radius:10px;padding:13px 16px;margin-bottom:18px;font-size:.86rem;font-weight:400;line-height:1.75;color:var(--fg)}
 header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;margin-bottom:18px;padding-bottom:16px;border-bottom:2px solid var(--accent)}
 .tabs{display:flex;gap:8px;background:var(--surface-2);padding:5px;border-radius:12px;border:1px solid var(--border)}
 .tab-btn{appearance:none;border:0;background:transparent;color:var(--fg-muted);font:inherit;font-weight:700;font-size:.82rem;padding:7px 14px;border-radius:8px;cursor:pointer}
@@ -191,6 +192,10 @@ tr.school-row:hover{background:var(--surface-2)}
       <button class="tab-btn" id="tab-btn-report" role="tab" aria-selected="false" onclick="showTab('report')">لوحة المتابعة</button>
     </div>
   </header>
+
+  <div class="intro-note">
+    أهمية هذه البيانات: تمكّن متابعةُ جاهزية كل مدرسة أولاً بأول — لا بعد الزيارة — الإدارةَ العامة للمدارس من تحديد مستوى استعداد كل مدرسة لزيارة فريق التقويم الخارجي بدقة، وتوجيه الدعم الذي تحتاجه كل مدرسة تحديداً وفي وقته، بدل اكتشاف الفجوات متأخراً.
+  </div>
 
   <section id="tab-fill" class="active">
     <div class="card">
@@ -339,25 +344,25 @@ COMPLEXES.forEach(c=>{
    التنفيذية، وحقائب النشاط ومرآته — لا بنداً مخترَعاً بينها */
 const CATEGORIES=[
   {id:"class_env",name:"البيئة الصفية ومطبوعاتها",items:[
-    {key:"class_print_core",q:"طباعة وتعليق المطبوعات الإلزامية في كل فصل (لوحة «هكذا نتعلّم» + الميثاق + ثمارنا ١-٢-٣؛ الروضة: لوحتان فقط)",suggest:"IN_PROGRESS"},
+    {key:"class_print_core",q:"طباعة وتعليق المطبوعات الخاصة بـ«البيئة الصفية للتعلم النشط» في كل فصل (لوحة «هكذا نتعلّم» + الميثاق: لوحتان فقط)",suggest:"IN_PROGRESS"},
     {key:"class_print_full",q:"استكمال بقية مطبوعات بيئة التعلم النشط (بطاقات الأدوار، قائمة الفحص الصفي، بطاقة الحصة)",suggest:"PENDING"},
   ]},
   {id:"teacher_readiness",name:"استعداد المعلمين والمعلمات وفق آلية الحصة النموذجية",items:[
     {key:"lesson_prep",q:"تحضير المعلمين والمعلمات للحصص وفق النموذج المعتمد (الأسئلة والأهداف والمؤشرات)",suggest:"IN_PROGRESS"},
-    {key:"readiness_plan",q:"تنفيذ خطة استعداد المعلمين والمعلمات الصفي وبلوغ مؤشرات نجاحها",suggest:"PENDING"},
+    {key:"readiness_plan",q:"حضور وتقييم الحصص النموذجية للتدريب على الحصة النموذجية وفق مؤشرات التقييم",suggest:"PENDING"},
     {key:"lesson_eval",q:"تفعيل استمارة الملاحظة الصفية ومتابعة إجراءات التحسين بعدها",suggest:"IN_PROGRESS"},
   ]},
   {id:"records",name:"السجلات والملفات (خطاب فريق التقويم)",items:[
-    {key:"docs",q:"تجهيز الوثائق الأساسية: التشغيلية والتحسينية والداعمة",note:"جاهزةٌ لدى إدارة التخطيط والعمليات المدرسية ومُرفَقة",suggest:"READY"},
+    {key:"docs",q:"طباعة الوثائق الأساسية: الخطط التشغيلية والتنفيذية وخطط التحسين وفق تقرير التقويم الذاتي ووفق التقويم الخارجي",suggest:"READY"},
     {key:"noor",q:"تحديث بيانات المدرسة في نظام نور",suggest:"IN_PROGRESS"},
-    {key:"timetable",q:"نسخة من الجدول المدرسي لكل مرحلة (الحصص والمعلمين والمعلمات والمواد)",suggest:"IN_PROGRESS"},
+    {key:"timetable",q:"نسخة من الجدول المدرسي لكل مرحلة (الحصص والمعلمين والمعلمات والمواد)، وكذلك وجود حصص خاصة بالنشاط الطلابي بالجدول نفسه حسب خطة حقائب الأنشطة الصفية",suggest:"IN_PROGRESS"},
     {key:"attendance_hours",q:"نسخة من مواعيد الحضور والانصراف المعتمدة",suggest:"IN_PROGRESS"},
   ]},
   {id:"classroom_visit",name:"الزيارة الصفية (خطاب فريق التقويم)",items:[
     {key:"lesson_visits",q:"الاستعداد لتعبئة جدول حضور فريق التقويم للحصص",note:"بعد ورود النموذج من الفريق — الفريق ينفّذ عادةً ١٠ إلى ١٨ زيارة صفية حسب حجم الكادر، ويُطابق الجدول المقدَّم بما يُنفَّذ فعلياً",suggest:"PENDING"},
   ]},
   {id:"interviews",name:"المقابلات",items:[
-    {key:"teacher_phones",q:"ملف جوالات المعلمين والمعلمات مجهّز لإرساله عبر القناة الرسمية الآمنة عند الطلب",note:"الأرقام نفسها لا تُحفظ في هذه الصفحة بحال",suggest:"IN_PROGRESS"},
+    {key:"teacher_phones",q:"إعداد ملف جوالات المعلمين والمعلمات مجهّز لإرساله عبر القناة الرسمية للفريق + استعداد مدير المدرسة والموجه الطلابي والمعلمين والطلاب للإجابة على أسئلة المقابلات",suggest:"IN_PROGRESS"},
   ]},
   {id:"surveys",name:"الاستبانات",items:[
     {key:"parent_phones",q:"ملف جوالات أولياء الأمور مجهّز لإرساله عبر القناة الرسمية الآمنة عند الطلب",note:"الأرقام نفسها لا تُحفظ في هذه الصفحة بحال",suggest:"IN_PROGRESS"},
@@ -370,8 +375,8 @@ const CATEGORIES=[
     {key:"op_plan",q:"طباعة وتعبئة الخطة التشغيلية والخطط التنفيذية للمسؤولين، محدَّثة حتى الأسبوع الحالي",suggest:"IN_PROGRESS"},
   ]},
   {id:"improvement_plans",name:"خطط التحسين",items:[
-    {key:"improve_self",q:"خطة التحسين وفق نتائج التقويم المدرسي الذاتي معتمدة ومكتملة",suggest:"IN_PROGRESS"},
-    {key:"improve_external",q:"خطة تحسين المؤشرات وفق نتائج نافِس والقدرات والتحصيلي الأخيرة معتمدة ومكتملة",suggest:"IN_PROGRESS"},
+    {key:"improve_self",q:"خطة التحسين وفق نتائج التقويم المدرسي الذاتي معتمدة ومكتملة حسب تقرير التقويم الذاتي ٢٠٢٦",suggest:"IN_PROGRESS"},
+    {key:"improve_external",q:"خطة تحسين المؤشرات وفق نتائج نافِس أو القدرات والتحصيلي الأخيرة معتمدة ومكتملة ووفق تقرير الاعتماد الخارجي ٢٠٢٥م",suggest:"IN_PROGRESS"},
   ]},
   {id:"evidence",name:"اكتمال شواهد التنفيذ",items:[
     {key:"evidence_weekly",q:"توثيق شواهد تنفيذ برامج وإجراءات الخطة التشغيلية أولاً بأول حتى الأسبوع الحالي",suggest:"IN_PROGRESS"},
@@ -381,7 +386,7 @@ const CATEGORIES=[
     {key:"role_academic_vp",q:"خطة الوكيل التعليمي التنفيذية مكتملة ومفعَّلة",suggest:"IN_PROGRESS"},
     {key:"role_school_vp",q:"خطة وكيل الشؤون المدرسية التنفيذية مكتملة ومفعَّلة",suggest:"IN_PROGRESS"},
     {key:"role_student_vp",q:"خطة وكيل شؤون الطلاب التنفيذية مكتملة ومفعَّلة",suggest:"IN_PROGRESS"},
-    {key:"role_guidance",q:"خطة الموجه الطلابي التنفيذية مكتملة ومفعَّلة",suggest:"IN_PROGRESS"},
+    {key:"role_guidance",q:"خطة الموجهين الطلابيين التنفيذية مكتملة ومفعَّلة",suggest:"IN_PROGRESS"},
     {key:"role_activity",q:"خطة رائد النشاط التنفيذية مكتملة ومفعَّلة",suggest:"IN_PROGRESS"},
     {key:"role_gifted",q:"خطة منسق الموهوبين التنفيذية مكتملة ومفعَّلة",suggest:"IN_PROGRESS"},
     {key:"role_safety",q:"خطة منسق الأمن والسلامة التنفيذية مكتملة ومفعَّلة",suggest:"IN_PROGRESS"},
@@ -398,10 +403,10 @@ const CATEGORIES=[
     {key:"intro_meeting",q:"إعداد اللقاء التعريفي الذي يديره مدير المدرسة عند وصول الفريق",note:"يستعرض أهداف المدرسة وإنجازاتها والتحديات التي واجهتها وكيفية معالجتها",suggest:"PENDING"},
   ]},
   {id:"awareness",name:"وعي المدرسة بأولويات التحسين",items:[
-    {key:"priorities_awareness",q:"اطّلاع القيادة المدرسية على نتائج نافِس والقدرات والتحصيلي الأخيرة وتحديد أولويات التحسين بناءً عليها",suggest:"IN_PROGRESS"},
+    {key:"priorities_awareness",q:"اطّلاع القيادة المدرسية وفريق التقويم الذاتي بالمدرسة على نتائج نافِس والقدرات والتحصيلي الأخيرة وتحديد أولويات التحسين بناءً عليها داخل خطة تحسين التقويم الذاتي وخطة التحسين وفق التقرير الأخير للاعتماد الخارجي ٢٠٢٦م",suggest:"IN_PROGRESS"},
   ]},
   {id:"summary",name:"ملخّص عام",items:[
-    {key:"strengths_summary",q:"ملخّص أبرز جوانب التميّز والتحسين لكل مرحلة",note:"يُستخرج من نتائج المؤشرات",suggest:"READY"},
+    {key:"strengths_summary",q:"ملخّص أبرز جوانب التميّز والتحسين لكل مرحلة (أعلى ١٠ مؤشرات وأقل ٥ مؤشرات)",note:"يُستخرج من نتائج المؤشرات",suggest:"READY"},
   ]},
 ];
 const ALL_REQS=CATEGORIES.flatMap(c=>c.items.map(it=>({...it,cat:c.id,catName:c.name})));
